@@ -1,3 +1,28 @@
+body {
+  padding-top: 40px;
+  padding-bottom: 40px;
+  background-color: #f5f5f5;
+}
+
 .hidden {
   display: none;
+}
+
+#video-canvas-overlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 1;
+}
+
+#canvas-container {
+  position: relative;
+}
+
+#capture-camera {
+  display: none;
+}
+
+.format-select {
+  text-transform: capitalize;
 }
