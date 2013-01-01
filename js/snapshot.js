@@ -1,23 +1,65 @@
 //$(function(){
-  var video = document.getElementById('video-stream');
+  var video = document.createElement('video');
+  // Autoplay to avoid just showing the first frame, as the controls are hidden
+  video.setAttribute('autoplay','');
 
-  var canvas = document.getElementById('video-canvas');
-  var ctx = canvas.getContext('2d');
-  var overlayCanvas = document.getElementById('video-canvas-overlay');
-  var overlay = overlayCanvas.getContext('2d');
+  var _inputCanvas = document.getElementById('video-canvas');
+  var input = _inputCanvas.getContext('2d');
+  var _overlayCanvas = document.getElementById('video-canvas-overlay');
+  var overlay = _overlayCanvas.getContext('2d');
+  var _outputCanvas = document.getElementById('output-canvas');
+  var output = _outputCanvas.getContext('2d');
 
-  var outputCanvas = document.getElementById('output-canvas');
-  var output = outputCanvas.getContext('2d');
-
-  var img = document.getElementById('video-photo');
+  var inputImg = document.getElementById('video-photo');
   var outputImg = document.getElementById('output-photo');
+
   var localMediaStream = null;
 
   var vw, vh, newWidth, newHeight, offsetX, offsetY;
-  var inputFormat = photoFormats.inputs[$('#input-format').val()];
-  var outputFormat = photoFormats.outputs[$('#output-format').val()];
 
-  // In millimeters
+  var photoFormats = {
+    // In millimeters
+    inputs: {
+      'infantil': {
+        w: 25,
+        h: 30
+      },
+      'pasaporte': {
+        w: 35,
+        h: 45
+      },
+      'credencial': {
+        w: 35,
+        h: 50
+      }
+    },
+    outputs: {
+      '4x6': {
+        w: 102,
+        h: 152
+      },
+      '5x7': {
+        w: 127,
+        h: 178
+      },
+      '6x8': {
+        w: 152,
+        h: 203
+      }
+    }
+  };
+
+  var filetype = 'jpeg'; // 'png', 'webp'
+
+  var inputFormat, outputFormat;
+
+  function setInputFormat (format) {
+    inputFormat = format;
+  }
+
+  function setOutputFormat (format) {
+    outputFormat = format;
+  }
 
 
   // No funciona en chrome
@@ -33,6 +75,15 @@
   //         console.log('boomtown!');
   // }, false );
 
+  navigator.getUserMedia = navigator.getUserMedia ||
+                           navigator.webkitGetUserMedia ||
+                           navigator.mozGetUserMedia ||
+                           navigator.msGetUserMedia;
+
+  window.URL = window.URL ||
+               window.webkitURL;
+  
+  // Draw on overlay canvas
   function updateOverlay(){
     overlay.globalAlpha = 0.8;
     overlay.beginPath();
@@ -44,23 +95,32 @@
     overlay.stroke();
   }
 
+  // Resize canvas to fit the largest possible rectangle, with
+  // inputFormat aspect ratio, inside the video
   function sizeCanvas() {
-    // console.log(video.videoWidth);
     if(video.videoWidth > 0 && video.videoHeight > 0) {
       vw = video.videoWidth;
       vh = video.videoHeight;
       var aspectratio = inputFormat.w/inputFormat.h;
-      offsetX = (vw-(vh*aspectratio))/2;
-      offsetY = 0;
+
+      if (vh < vw) {
+        offsetX = (vw - (vh*aspectratio)) / 2;
+        offsetY = 0;
+        xSize = ySize = vh;
+      } else {
+        offsetX = 0;
+        offsetY = (vh - (vw*aspectratio)) / 2;
+        xSize = ySize = vw;
+      }
+
       newWidth = vh*aspectratio;
       newHeight = vh;
 
-      canvas.width = newWidth;
-      canvas.height = newHeight;
-      overlayCanvas.width = newWidth;
-      overlayCanvas.height = newHeight;
-      img.height = newWidth;
-      img.width = newHeight;
+      input.canvas.width = newWidth;
+      input.canvas.height = newHeight;
+      overlay.canvas.width = newWidth;
+      overlay.canvas.height = newHeight;
+
       $('#start-camera').hide();
       $('#capture-camera').show();
       initializeCanvas(); // Placed here for old browsers?
@@ -72,50 +132,72 @@
     }
   }
 
+  // Fixed width, variable height
+  var styleWidth = 170;
   function initializeCanvas(){
     // Display style
-    var styleWidth = 170;
+
     var aspectratio = inputFormat.w/inputFormat.h;
     var styleHeigth = styleWidth/aspectratio;
 
-    canvas.style.width  = styleWidth + 'px';
-    canvas.style.height = styleHeigth + 'px';
-    overlayCanvas.style.width = styleWidth + 'px';
-    overlayCanvas.style.height = styleHeigth +'px';
-    img.style.width     = styleWidth + 'px';
-    img.style.height    = styleHeigth + 'px';
-
-
-    // Hide Video
-    video.style.height = 0 + 'px';
-    video.style.width  = 0 + 'px';
+    input.canvas.style.width    = styleWidth  + 'px';
+    input.canvas.style.height   = styleHeigth + 'px';
+    overlay.canvas.style.width  = styleWidth  + 'px';
+    overlay.canvas.style.height = styleHeigth + 'px';
+    // inputImg.style.width             = styleWidth  + 'px';
+    // inputImg.style.height            = styleHeigth + 'px';
   }
 
+  var fps = 30;
   function renderVideoInCanvas(){
-    ctx.drawImage(video, offsetX, offsetY, newWidth, newHeight, 0, 0, newWidth, newHeight);
-    setTimeout(renderVideoInCanvas, 1000 / 30); // 30fps
+    input.drawImage(video, offsetX, offsetY, newWidth, newHeight, 0, 0, newWidth, newHeight);
+    setTimeout(renderVideoInCanvas, 1000 / fps);
   }
 
   function snapshot(){
-    // img.src = canvas.toDataURL('image/webp');
-    img.src = canvas.toDataURL('image/png');
-    mergeSnapshots();
+    if (localMediaStream) {
+      inputImg.src = input.canvas.toDataURL('image/' + filetype);
+      mergeSnapshots();
+    }
   }
 
   function mergeSnapshots(){
+    // Amount of possible pictures, both x and y axis.
+    // TODO: Calculate which orientation is better [Horizontal|Vertical]
     var timesX = outputFormat.w/inputFormat.w;
     var timesY = outputFormat.h/inputFormat.h;
-    output.canvas.width = timesX*canvas.width;
-    output.canvas.height = timesY*canvas.height;
-    for(var y=0; y<output.canvas.height;y+=canvas.height){
-      for(var x=0; x<output.canvas.width;x+=canvas.width){
-        output.drawImage(canvas, 0, 0, canvas.width, canvas.height, x, y, canvas.width, canvas.height);
+
+    // Reduce resolution factor
+    var reduction = 1;
+    var cw = input.canvas.width/reduction;
+    var ch = input.canvas.height/reduction;
+
+    output.canvas.width = timesX*cw;
+    output.canvas.height = timesY*ch;
+
+    for(var y=0; y+ch<output.canvas.height;y+=ch){
+      for(var x=0; x+cw<output.canvas.width;x+=cw){
+        output.drawImage(input.canvas, 0, 0, input.canvas.width, input.canvas.height, x, y, cw, ch);
       }
     }
-    outputImg.src = output.canvas.toDataURL('image/png');
+
+    var dataURI = output.canvas.toDataURL('image/' + filetype);
+
+    // Set the output image source as dataURL
+    // *Crashes the browser if the image is too big
+    // outputImg.src = dataURI;
+    // $('#download-link').attr('href', dataURI).attr('download','le_photo.' + filetype);
+
+    // Set the output image source as a blob
+    var blob = dataURItoBlob(dataURI);
+    var blobURL = window.URL.createObjectURL(blob);
+    $('#download-link').attr('href', blobURL).attr('download','le_photo.' + filetype);
+    outputImg.src = blobURL;
+
+    outputImg.setAttribute('download','le_photo.' + filetype);
   }
 
-  function onFailSoHard(e) {
+  function getUserMediaError(e) {
     if (e.code == 1) {
       alert('User denied access to their camera');
     } else {
@@ -123,56 +205,81 @@
     }
   }
 
-  $('#start-camera').on('click', function (e) {
-    navigator.gUM = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
-    if(navigator.gUM){
-      window.URL = window.URL || window.webkitURL;
-
+  function startVideo(){
+    if(navigator.getUserMedia){
       if(!localMediaStream || localMediaStream.readyState == 2){
-        // if (navigator.webkitGetUserMedia) {
-        //   console.log('navigator.webkitGetUserMedia');
-        //   navigator.webkitGetUserMedia(
-        //     {video: true},
-        //     function (stream) {
-        //       video.src = window.webkitURL.createObjectURL(stream);
-        //       localMediaStream = stream;
-        //       sizeCanvas();
-        //     },
-        //     onFailSoHard
-        //   );
-        // } else if (navigator.getUserMedia || navigator.mozGetUserMedia) {
-      navigator.gUM(
-        {video: true},
-        function (stream) {
-          // video.src = stream;
-          if(navigator.mozGetUserMedia){
-            // Firefox
-            video.mozSrcObject = stream;
-            video.play();
-          } else {
-            // Chrome
-            video.src = window.URL.createObjectURL(stream);
-          }
-          localMediaStream = stream;
-          sizeCanvas();
-        },
-        onFailSoHard
-      );
+        navigator.getUserMedia(
+          {video: true},
+          function (stream) {
+            // video.src = stream;
+            if(navigator.mozGetUserMedia){
+              // Firefox
+              video.mozSrcObject = stream;
+              video.play();
+            } else {
+              // Chrome
+              video.src = window.URL.createObjectURL(stream);
+            }
+            localMediaStream = stream;
+            sizeCanvas();
+          },
+          getUserMediaError
+        );
       } else {
+        // Video is already started, but may be paused with video.pause()
+        // so it forces to play
         video.play();
       }
     } else {
-      onFailSoHard();
+      getUserMediaError();
+    }
+  }
+
+  function imgur(canvas){
+      var base64img = input.canvas.toDataURL('image/' + filetype).split(',')[1];
+      $.ajax({
+          url: 'https://api.imgur.com/3/upload.json',
+          type: 'POST',
+          headers: {
+            Authorization: 'Client-ID 78efd24716370d8'
+          },
+          data: {
+              type: 'base64',
+              // get your key http://imgur.com/register/api_anon
+              key: '8c78586d699eb1ee78db85b146053996eccf1eff',
+              name: 'le_photo.' + filetype,
+              title: 'le_photo.' + filetype,
+              caption: 'Created with FotosPaLaBanda by @davoclavo',
+              image: base64img
+          },
+          dataType: 'json'
+      }).success(function(data) {
+          console.dir(data);
+      }).error(function() {
+          alert('Could not reach api.imgur.com. Sorry :(');
+      });
+  }
+//});
+
+
+// Convert dataURI to Blob so large images do not crash the browser
+// Based on: http://stackoverflow.com/questions/10412299
+//           http://stackoverflow.com/questions/6850276
+function dataURItoBlob(dataURI) {
+    // convert base64 to raw binary data held in a string
+    var byteString = atob(dataURI.split(',')[1]);
+
+    // separate out the mime component
+    var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+
+    // write the bytes of the string to an ArrayBuffer
+    var arrayBuffer = new ArrayBuffer(byteString.length);
+    var _ia = new Uint8Array(arrayBuffer);
+    for (var i = 0; i < byteString.length; i++) {
+        _ia[i] = byteString.charCodeAt(i);
     }
 
-  });
-
-  $('#capture-camera, #video-canvas').on('click', function (e) {
-      if (localMediaStream) {
-          snapshot();
-          return;
-      }
-  });
-
-  initializeCanvas();
-//});
+    var dataView = new DataView(arrayBuffer);
+    var blob = new Blob([dataView], { type: mimeString });
+    return blob;
+}
