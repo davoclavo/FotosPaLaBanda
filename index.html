@@ -15,43 +15,57 @@
     <script src="js/vendor/modernizr-2.6.2-respond-1.1.0.min.js"></script>
   </head>
   <body>
+    <a href="https://github.com/davoclavo/FotosPaLaBanda" class="github-ribbon"><img src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+    <div class="allow alert alert-info">
+      <span class="text"><strong>Click here to allow access to your camera </strong><i class="icon-arrow-up"></i></span>
+    </div>
 
     <div class="container">
+        <h1>Fotos Pa La Banda</h1><span>by <a href="http://github.com/davoclavo">davoclavo</a></span>
+        <hr>
       <div class="row">
-        <div id="video-container">
+        <div class="span4" id="input">
           <div class="row">
-            <video id="video-stream" class="hidden" autoplay></video>
             <div class="span2" id="canvas-container">
-              <!-- <div class="img-polaroid"> -->
-                <canvas class="" id="video-canvas"></canvas>
-                <canvas class="" id="video-canvas-overlay"></canvas>
-              <!-- </div> -->
+              <canvas class="" id="video-canvas"></canvas>
+              <canvas class="" id="video-canvas-overlay"></canvas>
             </div>
             <div class="span2">
-              <!-- <img class="img-polaroid hidden" id="video-snapshot"> -->
               <img class="" id="video-photo">
             </div>
           </div>
           <div class="row">
             <button type="button" class="span2 btn" id="start-camera"><i class="icon-facetime-video"></i></button>
-
             <button type="button" class="span2 btn btn-success" id="capture-camera"><i class="icon-camera"></i></button>
           </div>
+          <hr>
+          <div class="row">
+            <div class="span2">
+              <label for="input-format">Photo Size</label>
+              <select class="span2 format-select" id="input-format"></select>
+            </div>
+            <div class="span2">
+              <label for="output-format">Print Size</label>
+              <select class="span2 format-select" id="output-format"></select>
+            </div>
+          </div>
         </div>
-        <div id="output">
-          <canvas class="hidden" id="output-canvas"></canvas>
-          <img class="span8" id="output-photo">
-          <a href="" id="download-link">Download Photo</a>
+        <div class="span8" id="output">
+          <img class="span6" id="output-photo">
+          <div class="span1">
+            <p>
+              <button type="button" class="btn" id="download-btn" rel="tooltip" data-placement="right" data-original-title="Download"><i class="icon-download-alt"></i></button>
+            </p>
+            <p>
+              <button type="button" class="btn" id="share-btn" rel="tooltip" data-placement="right" data-original-title="Export to Imgur"><i class="icon-share"></i></button>
+            </p>
+            <div class="tooltip-container"></div>
+          </div>
         </div>
-
-        <select class="span2 format-select" id="input-format"></select>
-        <select class="span2 format-select" id="output-format"></select>
       </div>
 
-      <hr>
-
       <footer>
-        <p>&copy; NO COPYRIGHT TROLOLOL 2013</p>
+        <span class="flip-horizontal">&copy;</span> <span>COPYLEFT 2013</span>
       </footer>
     </div> <!-- /container -->
 
@@ -61,8 +75,8 @@
     <script src="js/vendor/bootstrap.min.js"></script>
     <script src="js/vendor/select2.min.js"></script>
     
-    <script src="js/snapshot.js"></script>
-    <script src="js/main.js"></script>
+    <script src="js/snapper.js"></script>
+    <script src="js/main-new.js"></script>
 
 
     <script>

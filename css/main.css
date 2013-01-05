@@ -1,11 +1,45 @@
 body {
   padding-top: 40px;
   padding-bottom: 40px;
-  background-color: #f5f5f5;
+  background-color: black;
+  background-image: url(/img/subtle_carbon.png);
+
+  color: #979797;
+  -webkit-font-smoothing: antialiased;
+  text-shadow: 1px 1px 1px rgba(0,0,0,0.004);
 }
 
-.hidden {
+.container {
+  padding: 10px 25px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
+}
+
+
+.allow {
+  position: fixed;
+  top: 0;
+  width: 100%;
   display: none;
+  padding: 8px 0;
+}
+
+.allow .text {
+  position: relative;
+}
+
+.github-ribbon {
+  position: absolute;
+  top: 0;
+  right: 0;
+  border: 0;
+
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 #video-canvas-overlay {
@@ -25,4 +59,25 @@ body {
 
 .format-select {
   text-transform: capitalize;
+}
+
+hr {
+  border-top: 1px dashed #3C3C3C;
+  border-bottom: 0;
+}
+
+
+footer {
+  text-align: center;
+  border-top: 1px dashed #3C3C3C;
+  margin-top: 30px;
+  padding: 20px 0;
+}
+
+.flip-horizontal {
+  display: inline-block;
+  -moz-transform: matrix(-1, 0, 0, 1, 0, 0);
+  -webkit-transform: matrix(-1, 0, 0, 1, 0, 0);
+  -o-transform: matrix(-1, 0, 0, 1, 0, 0);
+  transform: matrix(-1, 0, 0, 1, 0, 0);
 }

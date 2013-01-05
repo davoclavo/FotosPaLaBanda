@@ -7,8 +7,10 @@
   var input = _inputCanvas.getContext('2d');
   var _overlayCanvas = document.getElementById('video-canvas-overlay');
   var overlay = _overlayCanvas.getContext('2d');
-  var _outputCanvas = document.getElementById('output-canvas');
+  var _outputCanvas = document.createElement('canvas');
   var output = _outputCanvas.getContext('2d');
+
+  var _downloadLink = document.createElement('a');
 
   var inputImg = document.getElementById('video-photo');
   var outputImg = document.getElementById('output-photo');
@@ -22,15 +24,18 @@
     inputs: {
       'infantil': {
         w: 25,
-        h: 30
+        h: 30,
+        label: 'Infantil - 2.5x3 cm'
       },
       'pasaporte': {
         w: 35,
-        h: 45
+        h: 45,
+        label: 'Pasaporte - 3.5x4.5 cm'
       },
       'credencial': {
         w: 35,
-        h: 50
+        h: 50,
+        label: 'Credencial - 3.5x5 cm'
       }
     },
     outputs: {
@@ -186,12 +191,12 @@
     // Set the output image source as dataURL
     // *Crashes the browser if the image is too big
     // outputImg.src = dataURI;
-    // $('#download-link').attr('href', dataURI).attr('download','le_photo.' + filetype);
+    // $(_downloadLink).attr('href', dataURI).attr('download','le_photo.' + filetype);
 
     // Set the output image source as a blob
     var blob = dataURItoBlob(dataURI);
     var blobURL = window.URL.createObjectURL(blob);
-    $('#download-link').attr('href', blobURL).attr('download','le_photo.' + filetype);
+    $(_downloadLink).attr('href', blobURL).attr('download','le_photo.' + filetype);
     outputImg.src = blobURL;
 
     outputImg.setAttribute('download','le_photo.' + filetype);
@@ -235,8 +240,12 @@
     }
   }
 
-  function imgur(canvas){
-      var base64img = input.canvas.toDataURL('image/' + filetype).split(',')[1];
+  function exportPhoto(callback){
+    return imgur(output.canvas, callback);
+  }
+
+  function imgur(canvas, callback){
+      var base64img = canvas.toDataURL('image/' + filetype).split(',')[1];
       $.ajax({
           url: 'https://api.imgur.com/3/upload.json',
           type: 'POST',
@@ -253,8 +262,8 @@
               image: base64img
           },
           dataType: 'json'
-      }).success(function(data) {
-          console.dir(data);
+      }).success(function(response) {
+          callback(response);
       }).error(function() {
           alert('Could not reach api.imgur.com. Sorry :(');
       });
@@ -262,24 +271,24 @@
 //});
 
 
-// Convert dataURI to Blob so large images do not crash the browser
-// Based on: http://stackoverflow.com/questions/10412299
-//           http://stackoverflow.com/questions/6850276
-function dataURItoBlob(dataURI) {
-    // convert base64 to raw binary data held in a string
-    var byteString = atob(dataURI.split(',')[1]);
+  // Convert dataURI to Blob so large images do not crash the browser
+  // Based on: http://stackoverflow.com/questions/10412299
+  //           http://stackoverflow.com/questions/6850276
+  function dataURItoBlob(dataURI) {
+      // convert base64 to raw binary data held in a string
+      var byteString = atob(dataURI.split(',')[1]);
 
-    // separate out the mime component
-    var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+      // separate out the mime component
+      var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
 
-    // write the bytes of the string to an ArrayBuffer
-    var arrayBuffer = new ArrayBuffer(byteString.length);
-    var _ia = new Uint8Array(arrayBuffer);
-    for (var i = 0; i < byteString.length; i++) {
-        _ia[i] = byteString.charCodeAt(i);
-    }
+      // write the bytes of the string to an ArrayBuffer
+      var arrayBuffer = new ArrayBuffer(byteString.length);
+      var _ia = new Uint8Array(arrayBuffer);
+      for (var i = 0; i < byteString.length; i++) {
+          _ia[i] = byteString.charCodeAt(i);
+      }
 
-    var dataView = new DataView(arrayBuffer);
-    var blob = new Blob([dataView], { type: mimeString });
-    return blob;
-}
+      var dataView = new DataView(arrayBuffer);
+      var blob = new Blob([dataView], { type: mimeString });
+      return blob;
+  }
