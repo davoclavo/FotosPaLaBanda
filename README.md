@@ -22,20 +22,24 @@ Nah, *just kidding*... well, actually I'm **not** kidding.
 
 Aproximate costs:
 
+FotosPaLaBanda:
+
   * 4x6
     - $4.50 (MXN)
-    - Fits 20 pictures *infantil* size
-  * 5x7 - ?????
-  * ...
+    - 20 pictures *infantil* size
 
-  Normal costs:
-  * 8 *infantil* size pictures
+> vs
+
+  * Studio/Photo booth
     - $40~$90 (MXN)
+    - 8 pictures *infantil* size
+
 
 Savings:
 
   Printing them on a 4x6, you spend $0.225 per picture
-  Printing them on a photo studio $8 per picture
+
+  Printing them in a studio $8 per picture
 
 #It is 3555% more expensive to print them in a studio!
 
