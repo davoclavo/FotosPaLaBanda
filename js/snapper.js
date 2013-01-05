@@ -93,13 +93,10 @@ var Snapper = (function() {
     self.overlay = self.overlayCanvas.getContext('2d');
     self.output = self.outputCanvas.getContext('2d');
     self.settings.aspectratio = self.settings.inputFormat.w/self.settings.inputFormat.h;
-    console.log(this);
 
   };
 
   Snapper.prototype.start = function start() {
-    console.log(this);
-
     if(navigator.getUserMedia){
       if(!self.stream || self.stream.readyState == 2){
         navigator.getUserMedia(
