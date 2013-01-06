@@ -78,7 +78,7 @@ $(function() {
     snapper.start();
     
     var $allow = $('.allow');
-    var left = window.location.origin.length*6.4+76;
+    var left = window.location.origin.length*7+95;
     
     $allow.find('span').css('position','relative').css('left', left + 'px');
     $('.allow').show();
@@ -97,4 +97,4 @@ $(function() {
   });
 
 
-})
+});
