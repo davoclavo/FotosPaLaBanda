@@ -52,7 +52,14 @@ $(function() {
 
   snapper.setFormat('input', photoFormats.inputs[$('#input-format').val()]);
   snapper.setFormat('output', photoFormats.outputs[$('#output-format').val()]);
-  // snapper.on('start', function(){ console.log('STARTED!')})
+
+  snapper.on('ready', function(){
+    $('#start-camera').hide();
+
+    $('.allow').hide();
+    $('#capture-camera').show();
+  });
+
   snapper.on('merge', function(url){
     snapper.outputImg.src = url;
   });
@@ -67,7 +74,15 @@ $(function() {
 
   $('.btn').tooltip();
 
-  $('#start-camera').on('click', snapper.start);
+  $('#start-camera').on('click', function(){
+    snapper.start();
+    
+    var $allow = $('.allow');
+    var left = window.location.origin.length*6.4+76;
+    
+    $allow.find('span').css('position','relative').css('left', left + 'px');
+    $('.allow').show();
+  });
 
   $('#capture-camera, #video-canvas, #video-canvas-overlay').on('click', function (e) {
       snapper.snap();

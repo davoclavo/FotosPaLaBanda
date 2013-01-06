@@ -263,8 +263,6 @@ var Snapper = (function() {
       self.overlay.canvas.width = self.outputWidth;
       self.overlay.canvas.height = self.outputHeight;
 
-      $('#start-camera').hide();
-      $('#capture-camera').show();
       styleCanvas(); // Placed here for old browsers?
       renderVideoInCanvas();
       self.trigger('ready', null);
@@ -321,7 +319,6 @@ var Snapper = (function() {
     // Set the output image source as dataURL
     // *Crashes the browser if the image is too big
     // self.outputImg.src = dataURI;
-    // $(_downloadLink).attr('href', dataURI).attr('download','le_photo.' + self.settings.filetype);
 
     // Set the output image source as a blob
     var blob = dataURItoBlob(dataURI);
@@ -329,7 +326,6 @@ var Snapper = (function() {
     self.trigger('merge', blobURL);
 
 
-    // $(_downloadLink).attr('href', blobURL).attr('download','le_photo.' + self.settings.filetype);
     // self.outputImg.src = blobURL;
     // self.outputImg.setAttribute('download','le_photo.' + self.settings.filetype);
   };
