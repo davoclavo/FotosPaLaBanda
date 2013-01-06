@@ -70,13 +70,12 @@ var Snapper = (function() {
   };
 
   Snapper.prototype.trigger = function(evnt, args) {
-    console.info('Event triggered: ' + evnt);
+    // console.info('Event triggered: ' + evnt);
     if (events.hasOwnProperty(evnt)) {
       for (var i = 0, l = events[evnt].length; i < l; ++i) {
         try {
           events[evnt][i].call(null, args);
         } catch (error) {
-          self.trigger('error');
           if (console && console.error) {
               console.error(error);
           }
@@ -92,6 +91,8 @@ var Snapper = (function() {
     self.input = self.inputCanvas.getContext('2d');
     self.overlay = self.overlayCanvas.getContext('2d');
     self.output = self.outputCanvas.getContext('2d');
+    self.output.canvas.width = 0;
+    self.output.canvas.height = 0;
     self.settings.aspectratio = self.settings.inputFormat.w/self.settings.inputFormat.h;
 
   };
@@ -138,8 +139,12 @@ var Snapper = (function() {
     overlay.stroke();
   };
 
-  Snapper.prototype.share = function(filename) {
-    self.imgur(self.output.canvas, filename);
+  Snapper.prototype.upload = function(filename) {
+    if(self.output.canvas.width > 0 && self.output.canvas.height > 0){
+      self.imgur(self.output.canvas, filename);
+    } else {
+      self.trigger('error','Generate composite image first');
+    }
   };
 
   Snapper.prototype.imgur = function(canvas, name, caption) {
@@ -160,7 +165,7 @@ var Snapper = (function() {
         },
         dataType: 'json'
     }).success(function(response) {
-      self.trigger('share', response);
+      self.trigger('upload', response);
     }).error(function() {
         alert('Could not reach api.imgur.com. Sorry :(');
     });

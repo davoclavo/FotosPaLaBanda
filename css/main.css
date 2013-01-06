@@ -9,6 +9,11 @@ body {
   text-shadow: 1px 1px 1px rgba(0,0,0,0.004);
 }
 
+i[class^="icon-"],
+i[class*=" icon-"] {
+  font-size: 14px;
+}
+
 .container {
   padding: 10px 25px;
   background-color: rgba(255, 255, 255, 0.1);
@@ -80,4 +85,8 @@ footer {
   -webkit-transform: matrix(-1, 0, 0, 1, 0, 0);
   -o-transform: matrix(-1, 0, 0, 1, 0, 0);
   transform: matrix(-1, 0, 0, 1, 0, 0);
+}
+
+#output .btn{
+  width: 41px;
 }

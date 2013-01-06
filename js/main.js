@@ -68,10 +68,16 @@ $(function() {
     snapper.mergeSnapshots();
   });
 
-  snapper.on('share', function(response){
+  snapper.on('upload', function(response){
+    $('#upload-btn').find('i').attr('class','icon-cloud-upload');
+    console.log('Image successfully exported to imgur\n'+ response.data.link);
     alert('Image successfully exported to imgur\n'+ response.data.link);
   });
 
+  snapper.on('error', function(message){
+    console.error('Snapper error: ' + message);
+  });
+  
   $('.btn').tooltip();
 
   $('#start-camera').on('click', function(){
@@ -88,11 +94,12 @@ $(function() {
       snapper.snap();
   });
 
-  $('#share-btn').on('click', function (e){
-    snapper.share();
+  $('#upload-btn').on('click', function (evnt){
+    $(this).find('i').attr('class','icon-spinner icon-spin');
+    snapper.upload();
   });
 
-  $('#download-btn').on('click', function (e){
+  $('#download-btn').on('click', function (evnt){
     snapper.download();
   });
 
